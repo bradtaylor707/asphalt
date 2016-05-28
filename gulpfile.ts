@@ -7,7 +7,6 @@ const gulp = require("gulp");
 const sass = require("gulp-sass");
 const server = require("gulp-server-livereload");
 //const gulpTsLint = require("gulp-tslint");
-//const gulpTypings = require("gulp-typings");
 
 const ts = require("gulp-typescript");
 let tsProject = ts.createProject("tsconfig.json");
@@ -88,5 +87,5 @@ gulp.task("copyLibs", copyLibs);
 gulp.task("loader", loader);
 gulp.task("webFiles", gulp.series(styles, gulp.parallel(html, res)));
 
-gulp.task("build", gulp.series(clean, compile, "webFiles", copyLibs, loader));
+gulp.task("build", gulp.series(clean, gulp.parallel(copyLibs, loader, gulp.series(compile, "webFiles"))));
 gulp.task("serve", gulp.series("build", gulp.parallel(serve, watch)));
