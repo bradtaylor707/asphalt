@@ -6,4 +6,8 @@ import {Component} from "@angular/core";
 	styleUrls: ["app/appComponent.css"]
 })
 
-export class AppComponent { }
+export class AppComponent { 
+	constructor() {
+		console.log("im here");
+	}
+}

@@ -19,17 +19,18 @@ let paths: any = {
 	html: "src/**/*.html",
 	sass: "src/**/*.scss",
 	ts: "src/**/*.ts",
-	res: "res/**/*"
+	res: "res/**/*",
+	loader: "src/systemjs.config.js"
 };
 
 let node_modules = [
-	"./node_modules/es6-shim/es6-shim.min.js",
-	"./node_modules/systemjs/dist/system-polyfills.js",
-	"./node_modules/systemjs/dist/system.src.js",
-	"./node_modules/reflect-metadata/Reflect.js",
-	"./node_modules/rxjs/**/*",
-	"./node_modules/zone.js/dist/**",
-	"./node_modules/@angular/**/*"
+	"es6-shim/es6-shim.min.js",
+	"systemjs/dist/system-polyfills.js",
+	"systemjs/dist/system.src.js",
+	"reflect-metadata/Reflect.js",
+	"rxjs/**",
+	"zone.js/dist/**",
+	"@angular/**"
 ];
 
 function clean(done) {
@@ -58,11 +59,11 @@ function res() {
 }
 
 function copyLibs() {
-	return gulp.src(node_modules).pipe(gulp.dest("build/node_modules/"));
+	return gulp.src(node_modules, {cwd: "node_modules/**"}).pipe(gulp.dest("build/node_modules"));
 }
 
 function loader() {
-	return gulp.src("src/systemjs.config.js").pipe(gulp.dest("build"));
+	return gulp.src(paths.loader).pipe(gulp.dest("build"));
 }
 
 function watch() {
@@ -70,6 +71,7 @@ function watch() {
 	gulp.watch(paths.sass, styles);
 	gulp.watch(paths.ts, compile);
 	gulp.watch(paths.res, res);
+	gulp.watch(paths.loader, loader);
 }
 
 function serve() {
@@ -87,5 +89,4 @@ gulp.task("loader", loader);
 gulp.task("webFiles", gulp.series(styles, gulp.parallel(html, res)));
 
 gulp.task("build", gulp.series(clean, compile, "webFiles", copyLibs, loader));
-gulp.task("watch", gulp.series("build", watch));
-gulp.task("serve", gulp.series(watch, serve));
+gulp.task("serve", gulp.series("build", gulp.parallel(serve, watch)));
