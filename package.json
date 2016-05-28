@@ -6,7 +6,7 @@
     "compile": "gulp compile",
     "build": "npm run prestart && gulp build",
     "prestart": "rm -rf typings/ && typings install",
-    "start": "concurrently --kill-others \"gulp watch\" \"lite-server\""
+    "start": "gulp serve"
   },
   "license": "private",
   "dependencies": {
@@ -26,10 +26,9 @@
     "zone.js": "^0.6.12"
   },
   "devDependencies": {
-    "concurrently": "^2.0.0",
     "del": "^2.2.0",
     "fs": "0.0.2",
-    "gulp": "gulpjs/gulp#4.0",
+    "gulp": "github:gulpjs/gulp#4.0",
     "gulp-cli": "^1.2.1",
     "gulp-sass": "^2.3.1",
     "gulp-server-livereload": "^1.7.4",

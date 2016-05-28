@@ -2,9 +2,10 @@
 	"dependencies": {
 		"del": "registry:npm/del#2.2.0+20160416211512",
 		"glob": "registry:npm/glob#6.0.0+20160211003958",
-		"gulp": "registry:npm/gulp"
+		"gulp": "registry:npm/gulp#3.8.0+20160211003958"
 	},
 	"globalDependencies": {
+		"es6-shim": "registry:dt/es6-shim#0.31.2+20160215162030",
 		"node": "registry:dt/node#6.0.0+20160524002506",
 		"systemjs": "registry:dt/systemjs#0.18.4+20160417155658"
 	}

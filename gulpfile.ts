@@ -4,40 +4,40 @@ const fs = require("fs");
 const del = require("del");
 
 const gulp = require("gulp");
-const gulpSass = require("gulp-sass");
-const gulpTsLint = require("gulp-tslint");
-const gulpTypings = require("gulp-typings");
-const gulpServer = require("gulp-server-livereload");
+const sass = require("gulp-sass");
+const server = require("gulp-server-livereload");
+//const gulpTsLint = require("gulp-tslint");
+//const gulpTypings = require("gulp-typings");
 
 const ts = require("gulp-typescript");
 let tsProject = ts.createProject("tsconfig.json");
 
 const sourcemaps = require("gulp-sourcemaps");
-
 const tslint = require("gulp-tslint");
+
+let paths: any = {
+	html: "src/**/*.html",
+	sass: "src/**/*.scss",
+	ts: "src/**/*.ts",
+	res: "res/**/*"
+};
 
 let node_modules = [
 	"./node_modules/es6-shim/es6-shim.min.js",
 	"./node_modules/systemjs/dist/system-polyfills.js",
 	"./node_modules/systemjs/dist/system.src.js",
 	"./node_modules/reflect-metadata/Reflect.js",
-	"./node_modules/rxjs/**",
+	"./node_modules/rxjs/**/*",
 	"./node_modules/zone.js/dist/**",
-	"./node_modules/@angular/**"
+	"./node_modules/@angular/**/*"
 ];
 
-/**
- * Remove build directory.
- */
 function clean(done) {
 	return del(["build"], done);
 }
 
-/**
- * Compile TypeScript sources and create sourcemaps in build directory.
- */
 function compile() {
-	let tsResult = gulp.src("src/**/*.ts")
+	let tsResult = gulp.src(paths.ts)
 		.pipe(sourcemaps.init())
 		.pipe(ts(tsProject));
 
@@ -45,38 +45,47 @@ function compile() {
 		.pipe(gulp.dest("build"));
 }
 
-function sass() {
-	gulp.src("src/**/*.scss").pipe(gulpSass()).pipe("build");
+function styles() {
+	return gulp.src(paths.sass).pipe(sass().on("error", sass.logError)).pipe(gulp.dest("build"));
 }
 
 function html() {
-	gulp.src("src/**/*.html").pipe(gulp.dest("build"));
+	return gulp.src(paths.html).pipe(gulp.dest("build"));
 }
 
-/**
- * copy /res -> build/res
- */
 function res() {
-	return gulp.src(["res/**/*"]).pipe(gulp.dest("build"));
+	return gulp.src(paths.res).pipe(gulp.dest("build"));
 }
 
-/**
- * copy node_modules to /build/node_modules
- */
 function copyLibs() {
-	return gulp.src(node_modules).pipe(gulp.dest("build"));
+	return gulp.src(node_modules).pipe(gulp.dest("build/node_modules/"));
 }
 
-function sys() {
+function loader() {
 	return gulp.src("src/systemjs.config.js").pipe(gulp.dest("build"));
+}
+
+function watch() {
+	gulp.watch(paths.html, html);
+	gulp.watch(paths.sass, styles);
+	gulp.watch(paths.ts, compile);
+	gulp.watch(paths.res, res);
+}
+
+function serve() {
+	gulp.src("build").pipe(server({
+		livereload: true,
+		open: true
+	}));
 }
 
 gulp.task("clean", clean);
 gulp.task("compile", compile);
 gulp.task("res", res);
 gulp.task("copyLibs", copyLibs);
-gulp.task("sys", sys);
+gulp.task("loader", loader);
+gulp.task("webFiles", gulp.series(styles, gulp.parallel(html, res)));
 
-
-gulp.task("webFiles", gulp.parallel(html, sass, res));
-gulp.task("build", gulp.series([clean, compile, "webFiles", copyLibs, sys]));
+gulp.task("build", gulp.series(clean, compile, "webFiles", copyLibs, loader));
+gulp.task("watch", gulp.series("build", watch));
+gulp.task("serve", gulp.series(watch, serve));
